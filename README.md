@@ -15,18 +15,20 @@ SWAS plugin, routes your intent to the right action, and pulls individual bundle
 
 ```bash
 pi install git:github.com/liush2yuxjtu/aliyun-start
-mkdir -p ~/.config/aliyun-start
-cp ~/.pi/agent/git/github.com/liush2yuxjtu/aliyun-start/.env.example ~/.config/aliyun-start/.env
-chmod 600 ~/.config/aliyun-start/.env   # then fill in your AccessKey
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aliyun-start"
+mkdir -p "$CONFIG_DIR"
+[ -e "$CONFIG_DIR/.env" ] || cp ~/.pi/agent/git/github.com/liush2yuxjtu/aliyun-start/.env.example "$CONFIG_DIR/.env"
+chmod 600 "$CONFIG_DIR/.env"   # then fill in your AccessKey
 ```
 
 ### Claude Code
 
 ```bash
 git clone https://github.com/liush2yuxjtu/aliyun-start ~/.claude/skills/aliyun-start
-mkdir -p ~/.config/aliyun-start
-cp ~/.claude/skills/aliyun-start/.env.example ~/.config/aliyun-start/.env
-chmod 600 ~/.config/aliyun-start/.env   # then fill in your AccessKey
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aliyun-start"
+mkdir -p "$CONFIG_DIR"
+[ -e "$CONFIG_DIR/.env" ] || cp ~/.claude/skills/aliyun-start/.env.example "$CONFIG_DIR/.env"
+chmod 600 "$CONFIG_DIR/.env"   # then fill in your AccessKey
 ```
 
 Existing Claude installs using `~/.claude/skills/aliyun-start/.env` migrate automatically on first use.
@@ -34,8 +36,9 @@ Then invoke with `/skill:aliyun-start`, `/aliyun-start`, or natural language suc
 
 ## Credentials
 
-Credentials live at `~/.config/aliyun-start/.env`, outside package checkouts, so updates cannot delete them
-and the repository never tracks them. Use a RAM user (not the root account) with
+Credentials live at `${XDG_CONFIG_HOME:-$HOME/.config}/aliyun-start/.env` (normally
+`~/.config/aliyun-start/.env`), outside package checkouts, so updates cannot delete them and the repository
+never tracks them. Use a RAM user (not the root account) with
 `AliyunSWASFullAccess` + `AliyunBSSReadOnlyAccess`. Disable/rotate the key in the RAM console when done.
 
 ## What it knows (baked-in gotchas)

@@ -24,10 +24,19 @@ CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aliyun-start"
 ENV_FILE="$CONFIG_DIR/.env"
 LEGACY_ENV="$HOME/.claude/skills/aliyun-start/.env"
 mkdir -p "$CONFIG_DIR"
-if [ ! -f "$ENV_FILE" ] && [ -f "$LEGACY_ENV" ]; then
+has_credentials() {
+  [ -f "$1" ] && (
+    set -a; . "$1" >/dev/null 2>&1; set +a
+    [ -n "${ALIBABA_CLOUD_ACCESS_KEY_ID:-}" ] &&
+      [ "$ALIBABA_CLOUD_ACCESS_KEY_ID" != "LTAI_your_access_key_id" ] &&
+      [ -n "${ALIBABA_CLOUD_ACCESS_KEY_SECRET:-}" ] &&
+      [ "$ALIBABA_CLOUD_ACCESS_KEY_SECRET" != "your_access_key_secret" ]
+  )
+}
+if ! has_credentials "$ENV_FILE" && has_credentials "$LEGACY_ENV"; then
   install -m 600 "$LEGACY_ENV" "$ENV_FILE"
 fi
-if [ ! -f "$ENV_FILE" ]; then
+if ! has_credentials "$ENV_FILE"; then
   printf 'Missing Aliyun credentials: %s\n' "$ENV_FILE" >&2
   return 1 2>/dev/null || exit 1
 fi
@@ -44,10 +53,19 @@ ask the user for `ALIBABA_CLOUD_ACCESS_KEY_ID` + `_SECRET` (RAM user with `Aliyu
 ## Step 1 — ensure tooling (idempotent)
 
 ```bash
-# aliyun CLI (no brew needed)
+# aliyun CLI (official archive; no brew needed)
 if ! "$AL" version >/dev/null 2>&1; then
-  curl -fsSL -o /tmp/acli.tgz "https://aliyuncli.alicdn.com/aliyun-cli-macosx-latest-arm64.tgz"
-  tar xzf /tmp/acli.tgz -C /tmp && mkdir -p "$HOME/.local/bin" && cp /tmp/aliyun "$HOME/.local/bin/aliyun"
+  case "$(uname -s)-$(uname -m)" in
+    Darwin-arm64)  archive=aliyun-cli-macosx-latest-arm64.tgz ;;
+    Darwin-x86_64) archive=aliyun-cli-macosx-latest-amd64.tgz ;;
+    Linux-aarch64|Linux-arm64) archive=aliyun-cli-linux-latest-arm64.tgz ;;
+    Linux-x86_64)  archive=aliyun-cli-linux-latest-amd64.tgz ;;
+    *) printf 'Unsupported host: %s-%s\n' "$(uname -s)" "$(uname -m)" >&2; exit 1 ;;
+  esac
+  curl -fsSL -o /tmp/acli.tgz "https://aliyuncli.alicdn.com/$archive"
+  tar xzf /tmp/acli.tgz -C /tmp
+  mkdir -p "$HOME/.local/bin"
+  install -m 755 /tmp/aliyun "$HOME/.local/bin/aliyun"
 fi
 # profile from .env
 "$AL" configure set --profile "$ALIYUN_PROFILE" --mode AK --region "$ALIYUN_REGION" \
@@ -103,7 +121,7 @@ curl -s "https://raw.githubusercontent.com/aliyun/alibabacloud-aiops-skills/main
 ```
 
 If the user explicitly wants a bundle skill installed as its own Claude skill, you may
-`npx skills add aliyun/alibabacloud-aiops-skills --skill <name>` — but default to the on-demand
+`env -u ALIBABA_CLOUD_ACCESS_KEY_ID -u ALIBABA_CLOUD_ACCESS_KEY_SECRET npx --yes skills@1.5.23 add aliyun/alibabacloud-aiops-skills --skill <name>` — but default to the on-demand
 reference approach so this stays the single front door.
 
 ## Current known deployment (this account)
