@@ -1,0 +1,18 @@
+{
+  "name": "aliyun-start",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One entry-point Pi skill for Alibaba Cloud deployment and operations",
+  "keywords": [
+    "pi-package",
+    "agent-skill",
+    "alibaba-cloud",
+    "aliyun"
+  ],
+  "license": "MIT",
+  "pi": {
+    "skills": [
+      "./SKILL.md"
+    ]
+  }
+}

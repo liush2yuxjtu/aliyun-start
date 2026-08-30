@@ -11,18 +11,32 @@ SWAS plugin, routes your intent to the right action, and pulls individual bundle
 
 ## Install
 
+### Pi
+
 ```bash
-git clone https://github.com/liush2yuxjtu/aliyun-start ~/.claude/skills/aliyun-start
-cd ~/.claude/skills/aliyun-start
-cp .env.example .env && chmod 600 .env   # then fill in your AccessKey
+pi install git:github.com/liush2yuxjtu/aliyun-start
+mkdir -p ~/.config/aliyun-start
+cp ~/.pi/agent/git/github.com/liush2yuxjtu/aliyun-start/.env.example ~/.config/aliyun-start/.env
+chmod 600 ~/.config/aliyun-start/.env   # then fill in your AccessKey
 ```
 
-Then invoke with `/aliyun-start` (or "部署到阿里云 / 阿里云运维 / 开服务器 / deploy to aliyun").
+### Claude Code
+
+```bash
+git clone https://github.com/liush2yuxjtu/aliyun-start ~/.claude/skills/aliyun-start
+mkdir -p ~/.config/aliyun-start
+cp ~/.claude/skills/aliyun-start/.env.example ~/.config/aliyun-start/.env
+chmod 600 ~/.config/aliyun-start/.env   # then fill in your AccessKey
+```
+
+Existing Claude installs using `~/.claude/skills/aliyun-start/.env` migrate automatically on first use.
+Then invoke with `/skill:aliyun-start`, `/aliyun-start`, or natural language such as "部署到阿里云".
 
 ## Credentials
 
-`.env` is **gitignored** — your AccessKey never gets committed. Use a RAM user (not the root account)
-with `AliyunSWASFullAccess` + `AliyunBSSReadOnlyAccess`. Disable/rotate the key in the RAM console when done.
+Credentials live at `~/.config/aliyun-start/.env`, outside package checkouts, so updates cannot delete them
+and the repository never tracks them. Use a RAM user (not the root account) with
+`AliyunSWASFullAccess` + `AliyunBSSReadOnlyAccess`. Disable/rotate the key in the RAM console when done.
 
 ## What it knows (baked-in gotchas)
 

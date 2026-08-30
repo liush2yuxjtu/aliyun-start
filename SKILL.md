@@ -20,15 +20,26 @@ on demand instead of installing 120 separate skills.
 ## Step 0 — load credentials (always run first)
 
 ```bash
-SKILL_DIR="$HOME/.claude/skills/aliyun-start"
-set -a; . "$SKILL_DIR/.env"; set +a
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/aliyun-start"
+ENV_FILE="$CONFIG_DIR/.env"
+LEGACY_ENV="$HOME/.claude/skills/aliyun-start/.env"
+mkdir -p "$CONFIG_DIR"
+if [ ! -f "$ENV_FILE" ] && [ -f "$LEGACY_ENV" ]; then
+  install -m 600 "$LEGACY_ENV" "$ENV_FILE"
+fi
+if [ ! -f "$ENV_FILE" ]; then
+  printf 'Missing Aliyun credentials: %s\n' "$ENV_FILE" >&2
+  return 1 2>/dev/null || exit 1
+fi
+set -a; . "$ENV_FILE"; set +a
 export ALIBABA_CLOUD_ACCESS_KEY_ID ALIBABA_CLOUD_ACCESS_KEY_SECRET
 AL="$HOME/.local/bin/aliyun"; command -v aliyun >/dev/null && AL=aliyun
 ```
 
-`.env` holds the AccessKey (gitignored). Never print the secret. If `.env` is missing, ask the user for
-`ALIBABA_CLOUD_ACCESS_KEY_ID` + `_SECRET` (RAM user with `AliyunSWASFullAccess` + `AliyunBSSReadOnlyAccess`),
-write them to `$SKILL_DIR/.env` (chmod 600), and remind them to disable the key when done.
+`.env` holds the AccessKey outside the package checkout so Pi package updates cannot delete it. Never print the
+secret. The migration above copies an existing Claude installation automatically. If `.env` is still missing,
+ask the user for `ALIBABA_CLOUD_ACCESS_KEY_ID` + `_SECRET` (RAM user with `AliyunSWASFullAccess` +
+`AliyunBSSReadOnlyAccess`), write them to `$ENV_FILE` (chmod 600), and remind them to disable the key when done.
 
 ## Step 1 — ensure tooling (idempotent)
 
