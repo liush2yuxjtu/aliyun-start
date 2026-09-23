@@ -103,12 +103,12 @@ fi
 
 ## Using the official bundle on demand (do NOT bulk-install)
 
-The bundle has ~120 skills under categories: computing, storage, netcdn, security, database, middleware,
+The bundle has ~377 skills under 17 categories: computing, storage, netcdn, security, database, middleware,
 developertools, migrationom, etc. Fetch just the one you need as reference, then drive `aliyun` CLI:
 
 ```bash
-# discover
-curl -s "https://raw.githubusercontent.com/aliyun/alibabacloud-aiops-skills/main/skills/<path>/SKILL.md"
+# discover — the upstream default branch is `master`; there is no `main` branch
+curl -s "https://raw.githubusercontent.com/aliyun/alibabacloud-aiops-skills/master/skills/<path>/SKILL.md"
 # high-value paths:
 #  computing/computenest/alibabacloud-ecs-code-deploy        (aliyun appmanager deploy to ECS)
 #  developertools/solutions/alibabacloud-terraform-code-generation
